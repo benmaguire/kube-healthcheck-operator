@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-healthcheck
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      environment: prod
+      app: kube-healthcheck
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        environment: prod
+        app: kube-healthcheck
+      name: kube-healthcheck-pod
+    spec:
+      containers:
+      - name: kube-healthcheck
+        image: xxxx
+        imagePullPolicy: Always
+        env:
+        - name: NAMESPACE
+          value: xxxx
+        - name: MQTT_USER
+          value: xxxx
+        - name: MQTT_PASS
+          value: xxxx
+      restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/os: linux
+      serviceAccountName: kube-healthcheck
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-healthcheck
+  namespace: monitoring
+  labels:
+    app: kube-healthcheck
+spec:
+  selector:
+    app: kube-healthcheck
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 31212
+    protocol: TCP
+---
